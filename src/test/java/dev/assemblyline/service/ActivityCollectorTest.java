@@ -63,4 +63,22 @@ public class ActivityCollectorTest {
         final List<Activity> actual = this.activityCollector.extractActivitiesFromFile(new File(filePath));
         Assert.assertEquals(expected, actual);
     }
+
+    /**
+     * Teste que verifica se, quando uma linha está fora do padrão, ela não será selecionada.
+     */
+    @Test
+    public void should_Return11Activities_When_SomeActivityIsMaintenance() {
+        List<Activity> expected = new ArrayList<>();
+        String alphabet = "ABCDEFGHIJ";
+        for (char c : alphabet.toCharArray()) {
+            expected.add(new Activity("Activity " + c + " 10Min", 10));
+        }
+        expected.add(new Activity("Activity K - maintenance", 5));
+        final String filePath = Paths.get(
+                SRC_TEST_RESOURCES + "ActivityCollectorTest/should_Return11Activities_When_SomeActivityIsMaintenance/input.txt")
+                .toAbsolutePath().toString();
+        final List<Activity> actual = this.activityCollector.extractActivitiesFromFile(new File(filePath));
+        Assert.assertEquals(expected, actual);
+    }
 }

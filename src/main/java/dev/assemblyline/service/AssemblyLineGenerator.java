@@ -31,12 +31,17 @@ public class AssemblyLineGenerator {
      */
     public List<AssemblyLine> extractAssemblyLinesByActivities(List<Activity> activities) {
         final Configuration c = Configuration.getInstance();
-        int morningDuration = TimeCalculator.getDurationBetween(c.getMorningBegin(), c.getMorningEnd(), c.getDateFormat());
-        int afternoonDuration = TimeCalculator.getDurationBetween(c.getAfternoonBegin(), c.getAfternoonEndRange()[0], c.getDateFormat());
+        int morningDuration = TimeCalculator.getDurationBetween(c.getMorningBegin(), c.getMorningEnd(),
+                c.getDateFormat());
+        int afternoonDuration = TimeCalculator.getDurationBetween(c.getAfternoonBegin(), c.getAfternoonEndRange()[0],
+                c.getDateFormat());
         int afternoonTolerance = TimeCalculator.getDurationBetween(c.getAfternoonEndRange()[0],
                 c.getAfternoonEndRange()[1], c.getDateFormat());
 
+        // Colocando atividades em ordem decrescente de duração para tentar deixar as menores durações para o final.
+        // Isso aumenta as chances de aproveitar todas as atividades.
         activities.sort((o1, o2) -> Integer.compare(o2.getDurationInMinute(), o1.getDurationInMinute()));
+
         // Criar agrupamentos de atividades com duração igual à menor duração encontrada
         List<GroupOfActivity> morningGroups = groupTheActivitiesByDurationSum(activities, morningDuration, 0);
         List<Activity> nonGroupedActivities = new ArrayList<>(activities);
@@ -53,20 +58,7 @@ public class AssemblyLineGenerator {
         addNonGroupedActivitiesInGroup(afternoonGroups, afternoonDuration, afternoonTolerance,
                 remainingGroupedActivities);
 
-        List<AssemblyLine> assemblyLineList = new ArrayList<>();
-        for (int i = 0; i < morningGroups.size(); i++) {
-            GroupOfActivity morningGroup = morningGroups.get(i);
-            GroupOfActivity afternoonGroup = afternoonGroups.get(i);
-
-            Period morning = createPeriod(Constants.MORNING_PERIOD_TITLE, morningGroup, c.getMorningBegin(),
-                    c.getMorningEnd(), null);
-            Period lunch = new Period(Constants.LUNCH_PERIOD_TITLE, null, c.getLunchBegin(), c.getLunchEnd(), null);
-            Period afternoon = createPeriod(Constants.AFTERNOON_PERIOD_TITLE, afternoonGroup, c.getAfternoonBegin(),
-                    c.getAfternoonEndRange()[0], c.getAfternoonEndRange()[1]);
-            Period laborGymnastics = createLaborGymnastics(afternoon);
-            assemblyLineList.add(new AssemblyLine(morning, lunch, afternoon, laborGymnastics));
-        }
-        return assemblyLineList;
+        return getAssemblyLine(morningGroups, afternoonGroups);
     }
 
     /**
@@ -101,7 +93,8 @@ public class AssemblyLineGenerator {
                     sum = 0;
                 }
             }
-            if (tolerance > 0 && !groupOfActivity.activities.isEmpty() && sum >= duration && sum <= duration + tolerance) {
+            if (tolerance > 0 && !groupOfActivity.activities.isEmpty() && sum >= duration
+                    && sum <= duration + tolerance) {
                 groupOfActivityList.add(groupOfActivity);
             }
             mutableActivityList.removeAll(activitiesToRemove);
@@ -135,7 +128,7 @@ public class AssemblyLineGenerator {
     /**
      * Redistribui as atividades entre os grupos da manhã e da tarde na tentativa de criar linhas de produções válidas.
      *
-     * @param morningGroups Grupos de atividades da manhã.
+     * @param morningGroups   Grupos de atividades da manhã.
      * @param afternoonGroups Grupos de atividades da tarde.
      */
     private void redistributeActivities(List<GroupOfActivity> morningGroups, List<GroupOfActivity> afternoonGroups) {
@@ -155,6 +148,34 @@ public class AssemblyLineGenerator {
                 }
             }
         }
+    }
+
+    /**
+     * Dados os grupos de atividades da manhã e da tarde, recupera uma linha de produção.
+     *
+     * @param morningGroups   Grupo das atividades da manhã.
+     * @param afternoonGroups Grupo das atividades da tarde.
+     * @return Lista de linhas de produção.
+     */
+    private List<AssemblyLine> getAssemblyLine(List<GroupOfActivity> morningGroups,
+                                            List<GroupOfActivity> afternoonGroups) {
+        Configuration c = Configuration.getInstance();
+        List<AssemblyLine> assemblyLineList = new ArrayList<>();
+        for (int i = 0; i < morningGroups.size(); i++) {
+
+            GroupOfActivity morningGroup = morningGroups.get(i);
+            GroupOfActivity afternoonGroup = afternoonGroups.get(i);
+
+            Period morning = createPeriod(Constants.MORNING_PERIOD_TITLE, morningGroup, c.getMorningBegin(),
+                    c.getMorningEnd(), null);
+            Period lunch = new Period(Constants.LUNCH_PERIOD_TITLE, null, c.getLunchBegin(), c.getLunchEnd(), null);
+            Period afternoon = createPeriod(Constants.AFTERNOON_PERIOD_TITLE, afternoonGroup, c.getAfternoonBegin(),
+                    c.getAfternoonEndRange()[0], c.getAfternoonEndRange()[1]);
+            Period laborGymnastics = createLaborGymnastics(afternoon);
+            final AssemblyLine assemblyLine = new AssemblyLine(morning, lunch, afternoon, laborGymnastics);
+            assemblyLineList.add(assemblyLine);
+        }
+        return assemblyLineList;
     }
 
     /**
