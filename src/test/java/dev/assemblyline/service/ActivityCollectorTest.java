@@ -21,11 +21,17 @@ public class ActivityCollectorTest {
     /** Coletor de atividades. */
     private ActivityCollector activityCollector;
 
+    /**
+     * Inicializa a instância do serviço coletor.
+     */
     @Before
     public void initInstance() {
         this.activityCollector = new ActivityCollector();
     }
 
+    /**
+     * Teste que verifica o camiho feliz de extração de atividaes do arquivo.
+     */
     @Test
     public void should_ExtractTenActivities() {
         List<Activity> expected = new ArrayList<>();
@@ -40,6 +46,9 @@ public class ActivityCollectorTest {
         Assert.assertEquals(expected, actual);
     }
 
+    /**
+     * Teste que verifica se, quando uma linha está fora do padrão, ela não será selecionada.
+     */
     @Test
     public void should_ExcludeLine_When_MoreThanOneNumberIsFound() {
         List<Activity> expected = new ArrayList<>();
