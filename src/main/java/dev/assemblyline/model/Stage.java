@@ -72,6 +72,6 @@ public class Stage {
 
     @Override
     public String toString() {
-        return "Ajustar para o formato 'start(HH:mm) activity.title'";
+        return this.startTime + " " + this.activity.getTitle();
     }
 }

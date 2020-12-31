@@ -10,20 +10,20 @@ import java.util.Objects;
 public class Production {
 
     /** Lista de linhas de produção. */
-    private List<AssemblyLine> assemblyLineList;
+    private List<AssemblyLine> assemblyLines;
 
     /**
      * Construtor.
      */
     public Production() {
-        this.assemblyLineList = new ArrayList<AssemblyLine>();
+        this.assemblyLines = new ArrayList<AssemblyLine>();
     }
 
     /**
-     * @return {@link #assemblyLineList}
+     * @return {@link #assemblyLines}
      */
-    public List<AssemblyLine> getAssemblyLineList() {
-        return this.assemblyLineList;
+    public List<AssemblyLine> getAssemblyLines() {
+        return this.assemblyLines;
     }
 
     @Override
@@ -35,19 +35,19 @@ public class Production {
             return false;
         }
         Production that = (Production) o;
-        return Objects.equals(this.assemblyLineList, that.assemblyLineList);
+        return Objects.equals(this.assemblyLines, that.assemblyLines);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.assemblyLineList);
+        return Objects.hash(this.assemblyLines);
     }
 
     @Override
     public String toString() {
         String result = "";
         int assemblyLineNumber = 1;
-        for (AssemblyLine assemblyLine : this.assemblyLineList) {
+        for (AssemblyLine assemblyLine : this.assemblyLines) {
             result += "Linha de montagem " + assemblyLineNumber + ":\n";
             result += assemblyLine.toString() + "\n\n";
             assemblyLineNumber++;
