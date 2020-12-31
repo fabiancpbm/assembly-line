@@ -47,7 +47,7 @@ public class Configuration {
     private final String afternoonBegin = "13:00";
 
     /** Range da hora de fim do período da tarde linhas de produção. */
-    private final String[] afternoonEndRange = {"16:00", "17:00"};
+    private final String[] afternoonEndRange = {"16:00", "16:59"};
 
     /**
      * @return {@link #dateFormat}

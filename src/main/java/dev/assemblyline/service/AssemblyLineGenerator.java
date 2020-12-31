@@ -31,13 +31,12 @@ public class AssemblyLineGenerator {
      */
     public List<AssemblyLine> extractAssemblyLinesByActivities(List<Activity> activities) {
         final Configuration c = Configuration.getInstance();
-        int morningDuration = TimeCalculator.getDurationBetween(c.getMorningBegin(), c.getMorningEnd(),
-                c.getDateFormat());
-        int afternoonDuration = TimeCalculator.getDurationBetween(c.getAfternoonBegin(), c.getAfternoonEndRange()[0],
-                c.getDateFormat());
+        int morningDuration = TimeCalculator.getDurationBetween(c.getMorningBegin(), c.getMorningEnd(), c.getDateFormat());
+        int afternoonDuration = TimeCalculator.getDurationBetween(c.getAfternoonBegin(), c.getAfternoonEndRange()[0], c.getDateFormat());
         int afternoonTolerance = TimeCalculator.getDurationBetween(c.getAfternoonEndRange()[0],
                 c.getAfternoonEndRange()[1], c.getDateFormat());
 
+        activities.sort((o1, o2) -> Integer.compare(o2.getDurationInMinute(), o1.getDurationInMinute()));
         // Criar agrupamentos de atividades com duração igual à menor duração encontrada
         List<GroupOfActivity> morningGroups = groupTheActivitiesByDurationSum(activities, morningDuration, 0);
         List<Activity> nonGroupedActivities = new ArrayList<>(activities);
@@ -102,7 +101,7 @@ public class AssemblyLineGenerator {
                     sum = 0;
                 }
             }
-            if (tolerance > 0 && !groupOfActivity.activities.isEmpty() && sum >= duration && sum <= tolerance) {
+            if (tolerance > 0 && !groupOfActivity.activities.isEmpty() && sum >= duration && sum <= duration + tolerance) {
                 groupOfActivityList.add(groupOfActivity);
             }
             mutableActivityList.removeAll(activitiesToRemove);
